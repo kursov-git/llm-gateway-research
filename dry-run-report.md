@@ -1,6 +1,6 @@
 # Dry Run Report
 
-Срез: 2026-03-18
+Срез: 2026-03-20
 
 ## Контекст запуска
 
@@ -11,19 +11,64 @@ Dry run выполнялся в этой среде без Docker.
 - `Node.js v22.22.1`
 - `Python 3.12.3`
 - `npm 10.9.4`
+- `Go` отсутствует
 - Docker отсутствует
 
 Это важно: сравнение ниже отражает именно **native/local startup profile**, а не Docker-first experience.
 
+Для `CLIProxyAPI` это особенно важно: source-build здесь невозможен без установки Go toolchain, поэтому dry run выполнялся через **официальный Linux release binary**.
+
 ## Короткий вывод
 
-Лучший dry-run результат показал `LiteLLM`.
+Лучший универсальный dry-run результат по-прежнему показал `LiteLLM`.
 
-`OmniRoute` оказался вторым: он успешно поднялся и выглядит сильным по operational surface, но путь запуска из исходников тяжелее и менее прямой.
+`CLIProxyAPI` добавился очень сильным вторым кандидатом: release binary поднялся быстро, конфигурация оказалась прозрачной, hot reload сработал, а upstream ошибки пробрасывались чисто.
+
+`OmniRoute` теперь оказался третьим: он успешно поднялся и выглядит сильным по operational surface, но путь запуска из исходников тяжелее и менее прямой.
 
 `uni-api` заработал, но только после ручного обхода нескольких проблем, поэтому на пустой машине его onboarding в dry run заметно хуже.
 
 ## Результаты по кандидатам
+
+### CLIProxyAPI
+
+Что делал:
+
+- скачал официальный release binary `CLIProxyAPI_6.8.55_linux_amd64.tar.gz`
+- создал минимальный `config.yaml` с:
+  - `host: 127.0.0.1`
+  - `port: 8317`
+  - локальным `auth-dir`
+  - одним downstream API key
+  - `remote-management.disable-control-panel: true`
+  - одним `openai-compatibility` provider с alias `oa/gpt-4o-mini`
+- запуск:
+  - `./cli-proxy-api -config /tmp/cliproxy-dryrun/config.yaml`
+
+Что получилось:
+
+- бинарник стартовал сразу, без Go toolchain и без дополнительной сборки.
+- сервис поднялся на `127.0.0.1:8317`.
+- `/` ответил служебным JSON с перечислением endpoint'ов.
+- `/v1/models` с bearer token вернул локально описанные модели и alias.
+- `/v1/models` без токена вернул `401 Missing API key`.
+- `/v1/chat/completions` вернул прозрачную upstream `401` от OpenAI с понятным `invalid_api_key`.
+- `/v0/management/config` вернул `404`, потому что management API был отключен пустым `secret-key`.
+- изменение `config.yaml` на лету было подхвачено watcher'ом без рестарта: новый alias появился в `/v1/models`.
+
+Полезные наблюдения:
+
+- Для native dry run официальный release binary сильно улучшает onboarding и снимает зависимость от Go.
+- Конфигурация через один `config.yaml` выглядит воспроизводимой и достаточно прозрачной.
+- Логи очень подробные: видно route registration, config reload, upstream unauthorized, suspension credential'а.
+- В dry run не нашёл отдельного явного health endpoint уровня `LiteLLM`/`OmniRoute`; основной operational сигнал здесь это root endpoint, модельный список и подробные runtime logs.
+- Проект оказался лучше по first-run experience, чем ожидалось по одному только масштабу README и ecosystem surface.
+
+Итог:
+
+- Очень сильный dry-run результат.
+- Значительно лучше, чем у `OmniRoute`, по прямоте native startup path.
+- Особенно силён именно как CLI/OAuth-first proxy для developer workflow.
 
 ### OmniRoute
 
@@ -134,26 +179,29 @@ Dry run выполнялся в этой среде без Docker.
 
 Оценка по 5-балльной шкале для этого dry run:
 
-| Критерий | Вес | LiteLLM | OmniRoute | uni-api |
-|---|---:|---:|---:|---:|
-| Time-to-first-request | 15% | 5 | 3 | 2 |
-| Provider/config startup clarity | 20% | 5 | 4 | 3 |
-| Fallback/routing surface | 20% | 4 | 5 | 4 |
-| Operability / logs / health | 20% | 5 | 5 | 2 |
-| Reproducible config | 15% | 4 | 4 | 5 |
-| Security / sane defaults in dry run | 10% | 4 | 3 | 3 |
+| Критерий | Вес | LiteLLM | CLIProxyAPI | OmniRoute | uni-api |
+|---|---:|---:|---:|---:|---:|
+| Time-to-first-request | 15% | 5 | 5 | 3 | 2 |
+| Provider/config startup clarity | 20% | 5 | 4 | 4 | 3 |
+| Fallback/routing surface | 20% | 4 | 5 | 5 | 4 |
+| Operability / logs / health | 20% | 5 | 4 | 5 | 2 |
+| Reproducible config | 15% | 4 | 5 | 4 | 5 |
+| Security / sane defaults in dry run | 10% | 4 | 4 | 3 | 3 |
 
 ## Предварительный рейтинг
 
 1. `LiteLLM`
-2. `OmniRoute`
-3. `uni-api`
+2. `CLIProxyAPI`
+3. `OmniRoute`
+4. `uni-api`
 
 ## Практический вывод
 
 Если выбирать одного кандидата для следующего шага пилота без реальных провайдерских ключей, выбирать `LiteLLM`.
 
-Если нужен developer-first self-hosted control plane и есть готовность принять более тяжелый startup profile, держать `OmniRoute` как сильного второго кандидата.
+Если нужен developer-first и CLI/OAuth-first proxy для coding workflow, `CLIProxyAPI` теперь выглядит сильнее `OmniRoute` именно по dry-run onboarding.
+
+Если нужен developer-first self-hosted control plane и есть готовность принять более тяжелый startup profile, держать `OmniRoute` как сильного кандидата с более богатым встроенным UI.
 
 Если критична именно file-first конфигурация и команда готова терпеть более шероховатый bootstrap, `uni-api` остаётся живой альтернативой, но не лидером по first-run experience.
 
