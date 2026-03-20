@@ -1,6 +1,6 @@
 # LLM Gateway Research
 
-Срез: 2026-03-18
+Срез: 2026-03-20
 
 ## Цель
 
@@ -8,9 +8,11 @@
 
 ## Короткий вывод
 
-Если нужен максимально универсальный и зрелый OSS gateway, основной кандидат: `LiteLLM`.
+Если нужен максимально универсальный и зрелый OSS gateway, основной инфраструктурный кандидат: `LiteLLM`.
 
-Если нужен self-hosted gateway с сильным уклоном в developer workflow, coding agents, OAuth/CLI accounts и визуальное управление fallback-сценариями, сильный кандидат: `OmniRoute`.
+Если нужен инструмент именно для coding, CLI, OAuth subscriptions и мультипровайдерной агентской разработки, новый top-tier кандидат: `CLIProxyAPI`.
+
+Если нужен self-hosted gateway с сильным уклоном в developer workflow, coding agents, OAuth/CLI accounts и встроенным визуальным control plane, сильный кандидат: `OmniRoute`.
 
 Если нужен более production/governance-ориентированный gateway с политиками и guardrails, сильный кандидат: `Portkey Gateway`.
 
@@ -18,13 +20,14 @@
 
 ## Shortlist
 
-1. `BerriAI/litellm`
+1. `router-for-me/CLIProxyAPI`
 2. `diegosouzapw/OmniRoute`
-3. `Portkey-AI/gateway`
-4. `yym68686/uni-api`
-5. `songquanpeng/one-api`
-6. `Helicone/ai-gateway`
-7. `lm-sys/RouteLLM`
+3. `BerriAI/litellm`
+4. `Portkey-AI/gateway`
+5. `yym68686/uni-api`
+6. `songquanpeng/one-api`
+7. `Helicone/ai-gateway`
+8. `lm-sys/RouteLLM`
 
 ## Что важно при выборе
 
@@ -36,31 +39,36 @@
 - Есть ли observability, quotas, rate limiting, ключи доступа и базовый security layer.
 - Не превращается ли решение в слишком тяжелую платформу, если нужен только routing.
 
-## Основной вывод по OmniRoute
+## Основной вывод по OmniRoute и CLIProxyAPI
 
-`OmniRoute` заметно отличается от части конкурентов тем, что это не просто единый proxy для BYOK API keys.
+`OmniRoute` и `CLIProxyAPI` теперь выглядят как финальная пара именно для developer-first и agentic coding workflow.
+
+`CLIProxyAPI` сильнее по прямому fit, зрелости и traction в OAuth/CLI-сценариях.
+
+`OmniRoute` сильнее как более цельный self-hosted продукт с интегрированным dashboard, health, combos и ops-поверхностью.
 
 Сильные стороны:
 
-- Сильный уклон в CLI и coding-agent use case.
-- Богатый self-hosted UI для `Providers`, `Combos`, `Analytics`, `Health`, `Endpoints`.
-- Гибкие стратегии выбора и fallback.
-- Поддержка OAuth, API key и multi-account сценариев.
-- Удобен для локального и полу-ручного использования командой разработчиков.
+- `CLIProxyAPI`: очень точное попадание в `Codex` / `Claude Code` / `Gemini` / `Qwen` / `iFlow`, multi-account и OAuth routing.
+- `CLIProxyAPI`: сильные сигналы зрелости и экосистемы вокруг desktop/dashboard-обвязок.
+- `OmniRoute`: богатый self-hosted UI для `Providers`, `Combos`, `Analytics`, `Health`, `Endpoints`.
+- `OmniRoute`: гибкие стратегии выбора и fallback.
+- Оба варианта хорошо попадают в multi-provider coding workflow.
 
 Слабые стороны:
 
-- Более широкая и хрупкая поверхность интеграции, чем у “чистого” gateway.
-- Сильная зависимость от совместимости с внешними CLI/OAuth-потоками.
-- Выше ops-сложность и maintenance burden.
-- Перед production нужен явный hardening конфигурации.
+- Оба варианта зависят от совместимости с внешними CLI/OAuth-потоками и потому потенциально более хрупки, чем “чистый” gateway.
+- `CLIProxyAPI` выглядит более config/docs-centric, а control plane более фрагментирован вокруг companion-проектов.
+- `OmniRoute` шире по продуктовой поверхности, поэтому выше ops-сложность и maintenance burden.
+- Перед production оба варианта требуют явного hardening конфигурации.
 
 ## Рекомендуемый порядок выбора
 
-1. Если нужен универсальный gateway для команды и приложений: смотреть `LiteLLM`.
-2. Если основной сценарий это coding assistants и developer tools: смотреть `OmniRoute`.
-3. Если важны policy/governance/guardrails: смотреть `Portkey Gateway`.
-4. Если нужен простой file-based router: смотреть `uni-api`.
+1. Если нужен инструмент для экстремального вайбкодинга, CLI/OAuth и агентской разработки: смотреть `CLIProxyAPI`.
+2. Если нужен тот же developer-first сегмент, но с более цельным встроенным UI/control plane: смотреть `OmniRoute`.
+3. Если нужен универсальный gateway для команды и приложений: смотреть `LiteLLM`.
+4. Если важны policy/governance/guardrails: смотреть `Portkey Gateway`.
+5. Если нужен простой file-based router: смотреть `uni-api`.
 
 ## Файлы в этой папке
 
@@ -72,3 +80,7 @@
 - `pilot-plan.md` — короткий план пилота для проверки финальных кандидатов на реальных сценариях.
 - `research-brief.md` — исходный запрос, уточнения пользователя и рамка для повторного запуска исследования в будущем.
 - `sources.md` — ссылки и краткие примечания по использованным источникам.
+
+## Важная оговорка
+
+`CLIProxyAPI` был добавлен в исследование позже первоначального dry run. Это значит, что он существенно обновил ranking по fit под coding workflow, но в документе `dry-run-report.md` его еще нет как фактически прогнанного кандидата.

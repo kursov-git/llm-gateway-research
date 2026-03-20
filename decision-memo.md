@@ -1,6 +1,6 @@
 # Decision Memo
 
-Срез: 2026-03-18
+Срез: 2026-03-20
 
 ## Вопрос
 
@@ -8,9 +8,11 @@
 
 ## Короткое решение
 
-Базовый выбор: `LiteLLM`.
+Базовый универсальный gateway: `LiteLLM`.
 
-Альтернативный выбор для developer-first и coding-agent сценариев: `OmniRoute`.
+Базовый выбор для developer-first и coding-agent сценариев: `CLIProxyAPI`.
+
+Альтернативный выбор для того же сегмента, если важен встроенный UI/control plane: `OmniRoute`.
 
 Легкий config-as-code выбор: `uni-api`.
 
@@ -34,19 +36,25 @@
 
 ### Сценарий 2. Основной use case это разработчики, IDE, CLI и coding agents
 
-Выбирать `OmniRoute`.
+Выбирать `CLIProxyAPI` или `OmniRoute`.
 
 Почему:
 
-- У него выраженный уклон в developer tooling.
-- Он хорошо закрывает сценарии `Codex`, `Claude Code`, `Gemini CLI`, похожие CLI и fallback между ними.
-- UI и operational surface удобны именно для живого ручного использования.
+- `CLIProxyAPI` сильнее бьет в самый центр задачи: `Codex`, `Claude Code`, `Gemini`, `Qwen`, `iFlow`, OAuth и multi-account routing.
+- `OmniRoute` дает более цельный встроенный self-hosted UI и удобнее как продукт для ручного ops-управления.
+- Оба варианта лучше совпадают с agentic coding workflow, чем универсальные gateway-платформы.
 
 Что принять заранее:
 
-- Это не самый “консервативный” gateway.
+- Это не самый “консервативный” класс gateway.
 - Для production и особенно публичной экспозиции нужен отдельный security review и hardening.
-- Поддержка некоторых сценариев будет более чувствительна к изменениям внешних клиентов и провайдеров.
+- Поддержка CLI/OAuth-сценариев будет чувствительнее к изменениям внешних клиентов и провайдеров, чем у чистого API gateway.
+- `CLIProxyAPI` в этом исследовании пока не проходил через тот же локальный dry run, что `OmniRoute`, `LiteLLM` и `uni-api`.
+
+Как выбирать между ними:
+
+- `CLIProxyAPI`, если нужен максимум прямого fit под AI coding и экстремальный вайбкодинг.
+- `OmniRoute`, если нужен тот же сегмент, но важнее встроенный dashboard, combos и визуальный control plane.
 
 ### Сценарий 3. Нужен легкий router без тяжелой панели и без платформенности
 
@@ -110,15 +118,17 @@
 
 Если нужно быстро сузить выбор до трех:
 
-1. `LiteLLM` как основной инфраструктурный кандидат.
-2. `OmniRoute` как developer-first кандидат.
-3. `uni-api` как легкий YAML-first кандидат.
+1. `CLIProxyAPI` как самый прямой кандидат под coding/CLI/OAuth.
+2. `OmniRoute` как developer-first кандидат с более цельным UI.
+3. `LiteLLM` как основной инфраструктурный fallback.
 
 Если нужно сузить до одного:
 
-Выбирать `LiteLLM`, если нет явной причины оптимизироваться под coding-agent/CLI workflow.
+Выбирать `CLIProxyAPI`, если основная ценность именно в AI coding, CLI/OAuth и multi-account switching.
 
-Выбирать `OmniRoute`, если основная ценность именно в ручном управлении fallback между developer-oriented провайдерами и аккаунтами.
+Выбирать `OmniRoute`, если важнее встроенное визуальное управление и уже есть доверенный рабочий референс по нему.
+
+Выбирать `LiteLLM`, если нет явной причины оптимизироваться под coding-agent/CLI workflow.
 
 ## Следующий шаг
 

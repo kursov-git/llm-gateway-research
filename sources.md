@@ -1,9 +1,10 @@
 # Sources
 
-Срез: 2026-03-18
+Срез: 2026-03-20
 
 ## Основные репозитории
 
+- CLIProxyAPI: https://github.com/router-for-me/CLIProxyAPI
 - OmniRoute: https://github.com/diegosouzapw/OmniRoute
 - LiteLLM: https://github.com/BerriAI/litellm
 - Portkey Gateway: https://github.com/Portkey-AI/gateway
@@ -14,6 +15,14 @@
 
 ## Использованные документы
 
+- CLIProxyAPI README:
+  - https://github.com/router-for-me/CLIProxyAPI/blob/main/README.md
+- CLIProxyAPI `config.example.yaml`:
+  - https://github.com/router-for-me/CLIProxyAPI/blob/main/config.example.yaml
+- CLIProxyAPI docker-compose guide:
+  - https://help.router-for.me/docker/docker-compose.html
+- CLIProxyAPI docker guide:
+  - https://help.router-for.me/docker/docker
 - OmniRoute README:
   - https://raw.githubusercontent.com/diegosouzapw/OmniRoute/main/README.md
 - OmniRoute `.env.example`:
@@ -39,6 +48,8 @@
 
 ## Дополнительные наблюдения
 
-- Метрики зрелости и активности репозиториев дополнительно проверялись через GitHub API на дату 2026-03-18.
+- Метрики зрелости и активности репозиториев дополнительно проверялись через GitHub API на даты 2026-03-18 и 2026-03-20.
+- На 2026-03-20 в shortlist был добавлен `CLIProxyAPI`, который существенно обновил ranking именно под developer-first coding workflow.
 - Для OmniRoute дополнительно просматривались локально клонированные `README.md`, `.env.example`, `docker-compose.yml`, `package.json` и части `providerRegistry.ts`.
+- Для CLIProxyAPI дополнительно просматривались локально клонированные `README.md`, `config.example.yaml`, `docker-compose.yml`, `go.mod` и части management/auth/routing кода.
 - Для Portkey, One API и uni-api дополнительно просматривались локально клонированные README и deployment/config фрагменты.

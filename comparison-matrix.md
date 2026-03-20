@@ -1,11 +1,12 @@
 # Comparison Matrix
 
-Срез: 2026-03-18
+Срез: 2026-03-20
 
 ## Матрица
 
 | Проект | Класс | Установка | Настройка | Переключение / routing | Сильные стороны | Слабые стороны | Когда выбирать |
 |---|---|---|---|---|---|---|---|
+| `CLIProxyAPI` | CLI/OAuth-first proxy gateway | Source как Go service, Docker, `docker-compose`, companion tools | `config.yaml`, auth dir, management API, optional external dashboards | Multi-account `round-robin`, `fill-first`, quota switching, model mapping, upstream provider routing | Лучший direct fit для `Codex` / `Claude Code` / `Gemini` / `Qwen` / `iFlow`, сильная traction и зрелость | Control plane менее цельный, чем у OmniRoute; многое завязано на YAML, docs и companion-проекты | Когда нужен инструмент именно для AI coding и экстремального вайбкодинга |
 | `OmniRoute` | Self-hosted AI gateway с UI | `npm install -g omniroute`, source, `docker run`, `docker compose` | `.env` + dashboard | `combos`, fallback chains, `round-robin`, `p2c`, `least-used`, `cost-optimized`, multi-account | Отличен для coding-agent и CLI сценариев, сильный UI, богатый self-hosted control plane | Более хрупкий профиль, выше ops-сложность, нужен hardening | Когда нужен gateway для developer workflow |
 | `LiteLLM` | Универсальный OSS gateway/platform layer | `pip install litellm`, `pip install 'litellm[proxy]'`, Docker, Compose | `config.yaml` + `.env`, часто с DB/UI | Routing, retries, load balancing, virtual keys, spend/cost controls | Самый зрелый универсальный кандидат, очень широкий охват провайдеров | Python-first, может быть тяжелее, чем нужен для простого proxy | Когда нужен основной multi-provider gateway |
 | `Portkey Gateway` | Gateway с routing + guardrails | `npx @portkey-ai/gateway`, Docker, Compose, Bun/Node, Workers | Console + configs/policies | Fallbacks, load balancing, provider optimization | Сильный production/governance уклон, хорошие guardrails | Часть восприятия продукта завязана на hosted/cloud экосистему | Когда важны policy, reliability и guardrails |
@@ -15,6 +16,22 @@
 | `RouteLLM` | Intelligent router framework | `pip install \"routellm[serve,eval]\"`, source | Python controller + config | Learned routing strong/weak model pair | Сильный cost/quality routing и eval-first подход | Не полноценный gateway/control plane | Когда нужен именно интеллектуальный выбор модели |
 
 ## Способы установки и настройки
+
+### CLIProxyAPI
+
+- Установка:
+  - запуск из source как Go service
+  - Docker
+  - `docker-compose`
+- Настройка:
+  - основной файл `config.yaml`
+  - отдельная директория auth state
+  - management API
+  - при необходимости companion dashboards вместо ручного YAML-only режима
+- Практический профиль:
+  - CLI/OAuth-first
+  - очень силен для локального AI coding и multi-account subscriptions
+  - ближе к proxy core + ecosystem, чем к единому встроенному control plane
 
 ### OmniRoute
 
@@ -113,11 +130,12 @@
 
 ### Если нужен один основной кандидат
 
-Выбирать `LiteLLM`.
+Выбирать `LiteLLM`, если задача инфраструктурная и не завязана в первую очередь на coding CLI.
 
 ### Если основной сценарий это разработчики, локальные CLI и coding agents
 
-Выбирать `OmniRoute`.
+- Выбирать `CLIProxyAPI`, если главный приоритет это максимально прямой fit под OAuth/CLI и повседневный AI coding.
+- Выбирать `OmniRoute`, если нужен тот же сегмент, но с более цельным встроенным UI, dashboard и control plane.
 
 ### Если нужна более легкая и декларативная конфигурация
 
