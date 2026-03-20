@@ -15,6 +15,16 @@
 
 ## Использованные документы
 
+- GitHub Docs: navigating code on GitHub:
+  - https://docs.github.com/en/github/managing-files-in-a-repository/navigating-code-on-github
+- GitHub Docs: finding and understanding example code:
+  - https://docs.github.com/en/get-started/learning-to-code/finding-and-understanding-example-code
+- GitHub Docs: about repository graphs:
+  - https://docs.github.com/articles/using-graphs
+- GitHub Docs: about the dependency graph:
+  - https://docs.github.com/code-security/supply-chain-security/understanding-your-software-supply-chain/about-the-dependency-graph
+- GitHub CLI manual `gh search`:
+  - https://cli.github.com/manual/gh_search
 - CLIProxyAPI README:
   - https://github.com/router-for-me/CLIProxyAPI/blob/main/README.md
 - CLIProxyAPI `config.example.yaml`:
